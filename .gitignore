@@ -1,0 +1,5 @@
+.terraform
+**.sw*
+inputs.auto.tfvars.json
+terraform.tfstate*
+crash.log
