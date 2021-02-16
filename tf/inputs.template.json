@@ -1,0 +1,70 @@
+{
+  "cluster": "REPLACE",
+  "nodepools": {
+    "preemptible": {
+      "auto_upgrade": true,
+      "labels": {
+        "workload-type": "preemptible"
+      },
+      "machine_type": "e2-standard-2",
+      "max_nodes": 10,
+      "max_pods_per_node": 30,
+      "max_surge": 5,
+      "min_nodes": 0,
+      "preemptible": true,
+      "tags": null,
+      "taints": [
+        {
+          "effect": "NO_SCHEDULE",
+          "key": "cloud.google.com/gke-preemptible",
+          "value": "true"
+        },
+        {
+          "effect": "NO_SCHEDULE",
+          "key": "workload-type",
+          "value": "preemptible"
+        }
+      ]
+    },
+    "preemptible-fallback": {
+      "auto_upgrade": true,
+      "labels": {
+        "workload-type": "preemptible"
+      },
+      "machine_type": "e2-standard-2",
+      "max_nodes": 10,
+      "max_pods_per_node": 30,
+      "max_surge": 5,
+      "min_nodes": 0,
+      "preemptible": false,
+      "tags": null,
+      "taints": [
+        {
+          "effect": "NO_SCHEDULE",
+          "key": "workload-type",
+          "value": "preemptible"
+        }
+      ]
+    },
+    "primary": {
+      "auto_upgrade": true,
+      "labels": null,
+      "machine_type": "e2-standard-2",
+      "max_nodes": 10,
+      "max_pods_per_node": 30,
+      "max_surge": 1,
+      "min_nodes": 0,
+      "preemptible": false,
+      "tags": null,
+      "taints": null
+    }
+  },
+  "project": "REPLACE",
+  "region": "REPLACE",
+  "maintenance_window": {
+    "start_time": "2020-01-01T01:00:00Z",
+    "end_time": "2020-01-01T13:00:00Z",
+    "recurrence": "FREQ=WEEKLY;BYDAY=SA,SU"
+  },
+  "release_channel": "STABLE"
+}

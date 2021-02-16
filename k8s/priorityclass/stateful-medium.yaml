@@ -1,0 +1,9 @@
+---
+apiVersion: scheduling.k8s.io/v1
+description: Medium priority stateful pods
+kind: PriorityClass
+metadata:
+  labels:
+    name: stateful-medium
+  name: stateful-medium
+value: 1e+06
