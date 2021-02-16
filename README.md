@@ -1,3 +1,4 @@
+cp inputs.template.json inputs.auto.tfvars.json
 Assumes you have:
 - gcloud setup with account with required permissions
 Create a project
