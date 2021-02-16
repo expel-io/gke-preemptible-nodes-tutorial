@@ -7,7 +7,7 @@ variable service_account { type = object({ email = string }) }
 # OPTIONAL
 # See locals{} below for default values
 # Defaults are specified this way so that we can define nodepool objects sparsely in root tfvars
-variable enable_workload_identity { type = bool }
+variable auto_upgrade { type = bool }
 variable labels { default = {} }
 variable machine_type { type = string }
 variable max_nodes { type = number }
@@ -30,6 +30,7 @@ variable taints {
 
 locals {
   labels                   = coalesce(var.labels, {})
+  auto_upgrade             = coalesce(var.auto_upgrade, true)
   machine_type             = coalesce(var.machine_type, "e2-standard-4")
   max_nodes                = coalesce(var.max_nodes, 0)
   max_pods_per_node        = coalesce(var.max_pods_per_node, 30)

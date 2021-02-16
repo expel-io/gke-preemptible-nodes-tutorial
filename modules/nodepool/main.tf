@@ -22,7 +22,8 @@ resource "google_container_node_pool" "nodepool" {
   }
 
   management {
-    auto_repair = true
+    auto_repair  = true
+    auto_upgrade = true
   }
 
   node_config {
@@ -33,6 +34,10 @@ resource "google_container_node_pool" "nodepool" {
 
     labels = merge({ "size" : local.machine_type }, local.labels)
     tags   = concat([var.cluster], local.tags)
+
+    metadata        = {
+      disable-legacy-endpoints = true
+    }
 
     dynamic "taint" {
       for_each = local.taints

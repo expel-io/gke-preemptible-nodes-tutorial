@@ -1,15 +1,9 @@
-# Enable APIs
-resource "google_project_service" "enable_compute_engine" {
-  for_each = var.apis
-
-  service = each.value
-  project = var.project
-}
-
 resource "google_service_account" "cluster" {
   account_id = "${var.cluster}-cluster-nodes"
 }
 
+# Default service account has way too many perms,
+# so create one and give least privs
 resource "google_project_iam_member" "cluster" {
   for_each = toset([
     "roles/logging.logWriter",
@@ -21,45 +15,25 @@ resource "google_project_iam_member" "cluster" {
   member = "serviceAccount:${google_service_account.cluster.email}"
 }
 
-resource "google_storage_bucket_iam_member" "cluster_registry_access" {
-  bucket = "artifacts.expel-engineering-devops.appspot.com"
-  role   = "roles/storage.objectViewer"
-  member = "serviceAccount:${google_service_account.cluster.email}"
-}
-
-#data "google_compute_network" "cluster" {
-#  name = var.environment
-#}
-
-#resource "google_compute_subnetwork" "cluster" {
-#  name          = "cluster-nodes-${var.cluster}"
-#  network       = data.google_compute_network.cluster.self_link
-#  project       = var.project
-#  region        = var.region
-#  ip_cidr_range = var.subnet_ip_cidr_range
-#
-#  secondary_ip_range {
-#    range_name    = "secondary-pods-${var.cluster}"
-#    ip_cidr_range = var.pods_ip_cidr_range
-#  }
-#
-#  secondary_ip_range {
-#    range_name    = "secondary-services-${var.cluster}"
-#    ip_cidr_range = var.services_ip_cidr_range
-#  }
-#
-#  private_ip_google_access = var.enable_private_nodes
-#}
-
 resource "google_container_cluster" "cluster" {
   name       = var.cluster
   location   = var.region
-  #network    = data.google_compute_network.cluster.self_link
-  #subnetwork = google_compute_subnetwork.cluster.self_link
 
-  #provider = google-beta
+  provider = google-beta
 
   enable_shielded_nodes = true
+
+  release_channel {
+    channel = var.release_channel
+  }
+
+  networking_mode = "VPC_NATIVE"
+
+  ip_allocation_policy {
+    # Empty lets GKE manage them
+    cluster_ipv4_cidr_block = ""
+    services_ipv4_cidr_block = ""
+  }
 
   #ip_allocation_policy {
   #  cluster_secondary_range_name  = "secondary-pods-${var.cluster}"
@@ -96,7 +70,7 @@ resource "google_container_cluster" "cluster" {
   }
 
   vertical_pod_autoscaling {
-    enabled = false
+    enabled = true
   }
 }
 
@@ -109,7 +83,7 @@ module nodepool {
   name            = each.key
   service_account = google_service_account.cluster
 
-  enable_workload_identity = lookup(each.value, "enable_workload_identity", null)
+  auto_upgrade             = lookup(each.value, "auto_upgrade", null)
   labels                   = lookup(each.value, "labels", null)
   machine_type             = lookup(each.value, "machine_type", null)
   max_nodes                = lookup(each.value, "max_nodes", null)

@@ -1,0 +1,9 @@
+---
+apiVersion: scheduling.k8s.io/v1
+description: Critical priority ops/admin pods outside the kube-system namespace
+kind: PriorityClass
+metadata:
+  labels:
+    name: ops-critical
+  name: ops-critical
+value: 1e+08
