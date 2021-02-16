@@ -1,0 +1,116 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+  namespace: default
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      # Run as the nginx user
+      securityContext:
+        runAsUser: 101
+      containers:
+      # While using a rolling tag is good for pulling in security patches,
+      # using an upstream tag has its own security and compatibility
+      # concerns. This is outside the scope of this walk-through however.
+      - image: "nginxinc/nginx-unprivileged:stable-alpine"
+        name: nginx
+        ports:
+        - containerPort: 8080
+          name: http
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - "/bin/sh"
+              - "-c"
+              - "nginx -s quit; while killall -0 nginx; do sleep 1; done"
+        # As we are using VPA, only the ratio of
+        # request to limit matters. As VPA scales the
+        # resources, this ratio will be maintained allowing
+        # for some burstability.
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          # Unless there's a specific reason to, do not add CPU limit.
+          # CPU limits can lead to throttling even when the node has CPU to spare.
+          limits:
+            memory: "512Mi"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          failureThreshold: 6
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: confd
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: confd
+        configMap:
+          name: nginx-confd
+
+      priorityClassName: stateless-high
+
+      # This allows the pods to be scheduled on the tainted
+      # nodes
+      tolerations:
+      - key: workload-type
+        operator: Equal
+        value: preemptible
+        effect: NoSchedule
+      - key: cloud.google.com/gke-preemptible
+        operator: Exists
+        effect: NoSchedule
+      # This tells Kubernetes to use the labeled node pools
+      # assuring the pods end up on the preemptible or preemptible-fallback
+      # node pools
+      nodeSelector:
+        workload-type: preemptible
+
+      # Spread the pods across seperate nodes to reduce effects
+      # of preemptible, node outage, or zone outage
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          # This tells kube to schedule pods on seperate nodes
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - nginx
+              topologyKey: kubernetes.io/hostname
+          # This tells kube to spread pods across zones
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                  - nginx
+              topologyKey: failure-domain.beta.kubernetes.io/zone

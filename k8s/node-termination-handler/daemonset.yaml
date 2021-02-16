@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: node-termination-handler
+    k8s-app: node-termination-handler
+    name: node-termination-handler
+  name: node-termination-handler
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: node-termination-handler
+      k8s-app: node-termination-handler
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: node-termination-handler
+        k8s-app: node-termination-handler
+        name: node-termination-handler
+    spec:
+      affinity:
+        nodeAffinity:
+          # Restrict to GPU nodes or preemptible nodes
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-accelerator
+                operator: Exists
+            - matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+      containers:
+      - args:
+        - --exclude-pods=$(POD_NAME):$(POD_NAMESPACE)
+        - --logtostderr
+        # Give non-system pods time to gracefully exit
+        - --system-pod-grace-period=14s
+        - --taint=cloud.google.com/impending-node-termination::NoSchedule
+        - --v=10
+        command:
+        - ./node-termination-handler
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: SLACK_WEBHOOK_URL
+          value: ""
+        image: k8s.gcr.io/gke-node-termination-handler@sha256:aca12d17b222dfed755e28a44d92721e477915fb73211d0a0f8925a1fa847cca
+        name: node-termination-handler
+        # As we are using VPA, only the ratio of
+        # request to limit matters. As VPA scales the
+        # resources, this ratio will be maintained allowing
+        # for some burstability.
+        resources:
+          requests:
+            cpu: 150m
+            memory: 30Mi
+          limits:
+            memory: 30Mi
+        securityContext:
+          capabilities:
+            add:
+            # Necessary to reboot node
+            - SYS_BOOT
+        stdin: false
+        tty: false
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      # Necessary to hit the node's metadata server when using Workload Identity
+      hostNetwork: true
+      # Necessary to reboot node
+      hostPID: true
+      # This assures that this will be able to schedule on the node before any
+      # any user space worklaods
+      priorityClassName: ops-critical
+      serviceAccount: node-termination-handler
+      terminationGracePeriodSeconds: 30
+      # Run regardless of any existing taints.
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists

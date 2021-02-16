@@ -1,0 +1,9 @@
+---
+apiVersion: scheduling.k8s.io/v1
+description: High priority stateful pods
+kind: PriorityClass
+metadata:
+  labels:
+    name: stateful-high
+  name: stateful-high
+value: 1e+07

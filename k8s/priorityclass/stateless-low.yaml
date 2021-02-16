@@ -1,0 +1,9 @@
+---
+apiVersion: scheduling.k8s.io/v1
+description: Low priority stateless pods
+kind: PriorityClass
+metadata:
+  labels:
+    name: stateless-low
+  name: stateless-low
+value: 100
