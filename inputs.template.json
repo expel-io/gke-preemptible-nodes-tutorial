@@ -1,13 +1,12 @@
 {
   "cluster": "preemptible-3",
-  "release_channel": "REGULAR",
   "nodepools": {
     "preemptible": {
+      "auto_upgrade": true,
       "labels": {
         "workload-type": "preemptible"
       },
       "machine_type": "e2-standard-2",
-      "auto_upgrade": true,
       "max_nodes": 10,
       "max_pods_per_node": 30,
       "max_surge": 5,
@@ -28,10 +27,10 @@
       ]
     },
     "preemptible-fallback": {
+      "auto_upgrade": true,
       "labels": {
         "workload-type": "preemptible"
       },
-      "auto_upgrade": true,
       "machine_type": "e2-standard-2",
       "max_nodes": 10,
       "max_pods_per_node": 30,
@@ -48,9 +47,9 @@
       ]
     },
     "primary": {
+      "auto_upgrade": true,
       "labels": null,
       "machine_type": "e2-standard-2",
-      "auto_upgrade": true,
       "max_nodes": 10,
       "max_pods_per_node": 30,
       "max_surge": 1,
@@ -61,5 +60,6 @@
     }
   },
   "project": "luke-jolly-blog-test",
-  "region": "us-east1"
+  "region": "us-east1",
+  "release_channel": "REGULAR"
 }

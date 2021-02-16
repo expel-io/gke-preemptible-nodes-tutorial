@@ -23,12 +23,12 @@ variable "nodepools" {
 
 variable "project" {
   description = "GCP project to use"
-  type = string
+  type        = string
 }
 
 variable "region" {
   description = "GCP region to use"
-  type = string
+  type        = string
 }
 
 variable "release_channel" {

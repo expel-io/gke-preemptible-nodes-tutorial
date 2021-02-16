@@ -16,8 +16,8 @@ resource "google_project_iam_member" "cluster" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name       = var.cluster
-  location   = var.region
+  name     = var.cluster
+  location = var.region
 
   provider = google-beta
 
@@ -31,7 +31,7 @@ resource "google_container_cluster" "cluster" {
 
   ip_allocation_policy {
     # Empty lets GKE manage them
-    cluster_ipv4_cidr_block = ""
+    cluster_ipv4_cidr_block  = ""
     services_ipv4_cidr_block = ""
   }
 
@@ -74,7 +74,7 @@ resource "google_container_cluster" "cluster" {
   }
 }
 
-module nodepool {
+module "nodepool" {
   for_each = var.nodepools
   source   = "./modules/nodepool"
 
@@ -83,18 +83,18 @@ module nodepool {
   name            = each.key
   service_account = google_service_account.cluster
 
-  auto_upgrade             = lookup(each.value, "auto_upgrade", null)
-  labels                   = lookup(each.value, "labels", null)
-  machine_type             = lookup(each.value, "machine_type", null)
-  max_nodes                = lookup(each.value, "max_nodes", null)
-  max_pods_per_node        = lookup(each.value, "max_pods_per_node", null)
-  max_surge                = lookup(each.value, "max_surge", null)
-  max_unavailable          = lookup(each.value, "max_unavailable", null)
-  min_nodes                = lookup(each.value, "min_nodes", null)
-  oauth_scopes             = lookup(each.value, "oauth_scopes", null)
-  preemptible              = lookup(each.value, "preemptible", null)
-  tags                     = lookup(each.value, "tags", null)
-  taints                   = lookup(each.value, "taints", null)
+  auto_upgrade      = lookup(each.value, "auto_upgrade", null)
+  labels            = lookup(each.value, "labels", null)
+  machine_type      = lookup(each.value, "machine_type", null)
+  max_nodes         = lookup(each.value, "max_nodes", null)
+  max_pods_per_node = lookup(each.value, "max_pods_per_node", null)
+  max_surge         = lookup(each.value, "max_surge", null)
+  max_unavailable   = lookup(each.value, "max_unavailable", null)
+  min_nodes         = lookup(each.value, "min_nodes", null)
+  oauth_scopes      = lookup(each.value, "oauth_scopes", null)
+  preemptible       = lookup(each.value, "preemptible", null)
+  tags              = lookup(each.value, "tags", null)
+  taints            = lookup(each.value, "taints", null)
 
   depends_on = [google_container_cluster.cluster]
 }
