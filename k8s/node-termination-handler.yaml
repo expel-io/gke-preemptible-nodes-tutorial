@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: node-termination-handler
+    k8s-app: node-termination-handler
+    name: node-termination-handler
+  name: node-termination-handler
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: node-termination-handler
+      k8s-app: node-termination-handler
+  template:
+    metadata:
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      labels:
+        app: node-termination-handler
+        k8s-app: node-termination-handler
+        name: node-termination-handler
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-accelerator
+                operator: Exists
+            - matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: Exists
+      containers:
+      - args:
+        - --exclude-pods=$(POD_NAME):$(POD_NAMESPACE)
+        - --logtostderr
+        - --system-pod-grace-period=14s
+        - --taint=cloud.google.com/impending-node-termination::NoSchedule
+        - --v=10
+        command:
+        - ./node-termination-handler
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: SLACK_WEBHOOK_URL
+          value: ""
+        image: k8s.gcr.io/gke-node-termination-handler@sha256:aca12d17b222dfed755e28a44d92721e477915fb73211d0a0f8925a1fa847cca
+        name: node-termination-handler
+        ports: []
+        resources:
+          limits:
+            cpu: 150m
+            memory: 30Mi
+        securityContext:
+          capabilities:
+            add:
+            - SYS_BOOT
+        stdin: false
+        tty: false
+        volumeMounts: []
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      hostNetwork: true
+      hostPID: true
+      imagePullSecrets: []
+      initContainers: []
+      priorityClassName: ops-critical
+      serviceAccount: node-termination-handler
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+      volumes: []
