@@ -22,7 +22,7 @@
 - [Cleanup](#cleanup)
 
 ## Introduction
-This tutorial is meant to be a nitty gritty a technical how-to that pairs with this blog post: INSERT LINK HERE. Reading the article first will give a lot more context to why many of the things in this repo are done.
+This tutorial is meant to be a nitty gritty technical how-to that pairs with this blog post: INSERT LINK HERE. Reading the article first will give a lot more context to why many of the things in this repo are done.
 
 In this tutorial, we will setup a GKE cluster following many "best practices" using Terraform. These best practices include:
 - Automatic updates following the `STABLE` [release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
@@ -45,12 +45,12 @@ We will also be deploying node-termination-handler and an example workload (ngin
 
 ### Caveats
 
-Running a web server or publicly accessible API on preemptible nodes is not necessary recommended. The nginx workload was chosen as it as a very common workload the user might have familiarity with. How nginx is deployed in this repo could still result in brief downtime (in the range of seconds) in rare edge cases.
+Running a web server or publicly accessible API on preemptible nodes is not necessarily recommended. The nginx workload was chosen as it as a very common workload the user might have familiarity with. How nginx is deployed in this repo could still result in brief downtime (in the range of seconds) in rare edge cases.
 
 ## Prerequisites
 
 ### General understanding of Terraform and Kubernetes
-It is assumed that those following this tutorial are reasonable comfortable with Docker, Terraform, and Kubernetes/GKE.
+It is assumed that those following this tutorial are reasonably comfortable with Docker, Terraform, and Kubernetes/GKE.
 
 ### OS
 This tutorial has been tested with Docker on OS X and Linux. This has not been tested with Docker for Windows. However, it may work with very small modifications.
@@ -253,7 +253,7 @@ clusterrolebinding.rbac.authorization.k8s.io/psp:default created
 podsecuritypolicy.policy/default created
 ```
 
-This will create a podsecuritypolicy (PSP) called default. This PSP is a minimum set of privileges that all pods will be allowed to use by default. Our nginx container will use this psp.
+This will create a podsecuritypolicy (PSP) called default. This PSP is a minimum set of privileges that all pods will be allowed to use by default. Our nginx container will use this PSP.
 
 ### Apply priorityclass manifests
 
