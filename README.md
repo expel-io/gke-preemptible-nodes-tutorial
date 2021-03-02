@@ -22,7 +22,7 @@
 - [Cleanup](#cleanup)
 
 ## Introduction
-This tutorial is meant to be a nitty gritty technical how-to that pairs with this blog post: INSERT LINK HERE. Reading the article first will give a lot more context to why many of the things in this repo are done.
+This tutorial is meant to be a nitty gritty technical how-to that pairs with this blog post: TODO: INSERT LINK HERE. Reading the article first will give a lot more context to why many of the things in this repo are done.
 
 In this tutorial, we will setup a GKE cluster following many "best practices" using Terraform. These best practices include:
 - Automatic updates following the `STABLE` [release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
@@ -43,9 +43,13 @@ We will also be deploying node-termination-handler and an example workload (ngin
 - Pod security policies (PSP):
 - Vertical pod autoscaling (VPA):
 
+For more of an explanation of why node-termination-handler is needed, see TODO: Add link to blog section
+
 ### Caveats
 
 Running a web server or publicly accessible API on preemptible nodes is not necessarily recommended. The nginx workload was chosen as it as a very common workload the user might have familiarity with. How nginx is deployed in this repo could still result in brief downtime (in the range of seconds) in rare edge cases.
+
+For an overview of the difficulties and considerations of using preemptible nodes, see TODO: Add link to blog section
 
 ## Prerequisites
 
@@ -95,7 +99,7 @@ $ docker start -i -a tutorial
 
 ### Configure
 
-A common pattern at Expel is to drive Terraform configuration with a json file. We find that this allows us to abstract specific configuration for a workspace / environment out into top level configuration json files. The variables defined in the json must still be defined in the Terraform. These definitions can be found in `tf/variables.tf`
+A common pattern at Expel is to drive Terraform configuration with a json file. We find that this allows us to abstract specific configuration for a workspace / environment out in a centralized way. This top level json file allows the objects to be consumed by things other than Terraform such as jsonnet (or anything else that supports ingesting json). The variables defined in the json must still be defined in the Terraform. These definitions can be found in `tf/variables.tf`
 
 Enter the `/tf` dir and create `inputs.auto.tfvars.json` from template file:
 
@@ -106,7 +110,7 @@ root@DOCKER:/tutorial/tf# cp inputs.template.json inputs.auto.tfvars.json
 
 The reason for this weird naming is that any file ending with `.auto.tfvars` or `.auto.tfvars.json` will automatically be loaded by Terraform as variables.
 
-Now modify `inputs.auto.tfvars.json`, making sure to at minimum replace the follow fields that have their values set to REPLACE (vim and nano are available in the container):
+Now modify `inputs.auto.tfvars.json`, making sure to at minimum replace the following fields that have their values set to REPLACE (vim and nano are available in the container):
 
 ```
 {
@@ -297,7 +301,7 @@ root@DOCKER:/tutorial/k8s# kubectl get nodes -l workload-type=preemptible
 No resources found
 ```
 
-After deploy nginx, the preemptible node pool will be scaled up and the `kubectl get pod -l app=node-termination-handler -o wide` will show running pods.
+After deploying nginx, the preemptible node pool will be scaled up and the `kubectl get pod -l app=node-termination-handler -o wide` will show running pods.
 
 ### Deploy nginx
 
