@@ -37,6 +37,11 @@ spec:
               command:
               - "/bin/sh"
               - "-c"
+              # Kubernetes sends a SIGTERM by default to stop a container
+              # This would result in an ungraceful shutdown of nginx
+              # http://nginx.org/en/docs/control.html
+              # This preStop hook tells nginx to gracefully shutdown and then
+              # sleeps in a loop until nginx process has exited
               - "nginx -s quit; while killall -0 nginx; do sleep 1; done"
         # As we are using VPA, only the ratio of
         # request to limit matters. As VPA scales the
