@@ -22,7 +22,7 @@
 - [Cleanup](#cleanup)
 
 ## Introduction
-This tutorial is meant to be a nitty gritty technical how-to that pairs with this blog post: TODO: INSERT LINK HERE. Reading the article first will give a lot more context to why many of the things in this repo are done.
+This tutorial is meant to be a nitty gritty technical how-to that pairs with this blog post: [Migrating to Kubernetes and GKE: Preemptible nodes and making space for the Chaos Monkeys](https://expel.io/blog/migrating-gke-preemptible-nodes-making-space-for-chaos-monkeys?utm_medium=referral&utm_source=author%20promo&utm_campaign=Social%20blog%20promo). Reading the article first will give a lot more context to why many of the things in this repo are done.
 
 In this tutorial, we will setup a GKE cluster following many "best practices" using Terraform. These best practices include:
 - Automatic updates following the `STABLE` [release channel](https://cloud.google.com/kubernetes-engine/docs/concepts/release-channels)
