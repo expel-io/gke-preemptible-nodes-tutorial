@@ -43,13 +43,9 @@ We will also be deploying node-termination-handler and an example workload (ngin
 - Pod security policies (PSP):
 - Vertical pod autoscaling (VPA):
 
-For more of an explanation of why node-termination-handler is needed, see TODO: Add link to blog section
-
 ### Caveats
 
 Running a web server or publicly accessible API on preemptible nodes is not necessarily recommended. The nginx workload was chosen as it as a very common workload the user might have familiarity with. How nginx is deployed in this repo could still result in brief downtime (in the range of seconds) in rare edge cases.
-
-For an overview of the difficulties and considerations of using preemptible nodes, see TODO: Add link to blog section
 
 ## Prerequisites
 
